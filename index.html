@@ -1,113 +1,1184 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chess</title>
-  
-  <!-- Import Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet"
-      href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
-      integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
-      crossorigin="anonymous">
-  <style>
-    /* Set the background color for dark mode */
-    body.dark-mode {
-      background-color: #1a1a1a;
-      color: #fff;
-    }
-    /* Set the color for links in dark mode */
-    body.dark-mode a {
-      color: #fff;
-    }
-    /* Set the background color for teal buttons */
-    .btn-teal {
-      background-color: #008080;
-      color: #fff;
-    }
-    /* Set the background color for teal buttons in dark mode */
-    body.dark-mode .btn-teal {
-      background-color: #4db6ac;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateMate:  Debate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00f0ff;
+            --secondary-color: #ff2a6d;
+            --accent-color: #7700ff;
+            --bg-dark: #050505;
+            --bg-medium: #101010;
+            --text-bright: #fff;
+            --text-dim: rgba(255, 255, 255, 0.7);
+            --glow-primary: 0 0 15px rgba(0, 240, 255, 0.7);
+            --glow-secondary: 0 0 15px rgba(255, 42, 109, 0.7);
+            --user-bubble: rgba(0, 240, 255, 0.15);
+            --ai-bubble: rgba(255, 42, 109, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--text-bright);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-color: var(--bg-dark);
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(to bottom, #000000, #050505);
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+            filter: blur(80px);
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-bright);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .board-container {
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 10px rgba(0, 240, 255, 0.2);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            position: relative;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .board-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-color), transparent, var(--accent-color), transparent);
+            z-index: -1;
+            border-radius: 18px;
+            opacity: 0.3;
+            filter: blur(5px);
+        }
+        
+        #board {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .white-1e1d7 {
+            background-color: rgba(240, 240, 255, 0.95) !important;
+        }
+        
+        .black-3c85d {
+            background-color: rgba(30, 30, 30, 0.95) !important;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: rgba(5, 5, 5, 0.7);
+            border-radius: 8px;
+        }
+        
+        .score-user, .score-ai {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+        
+        .score-user {
+            background: var(--user-bubble);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .score-ai {
+            background: var(--ai-bubble);
+            border-right: 3px solid var(--secondary-color);
+        }
+        
+        .score-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .interaction-panel {
+            padding: 1.5rem;
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                        inset 0 0 10px rgba(255, 42, 109, 0.2);
+            border: 1px solid rgba(255, 42, 109, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            max-height: 800px;
+            height: 100%;
+        }
+        
+        .panel-section {
+            position: relative;
+        }
+        
+        .panel-section label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .init-section {
+            margin-bottom: 1rem;
+        }
+        
+        input, textarea {
+            width: 100%;
+            background: rgba(5, 5, 5, 0.9);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--text-bright);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus {
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border: none;
+            border-radius: 8px;
+            color: #000000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary), var(--glow-accent);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-right: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chat-bubble {
+            padding: 1rem;
+            border-radius: 12px;
+            position: relative;
+            max-width: 90%;
+            word-break: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chat-user {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            border-bottom-right-radius: 3px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .chat-ai {
+            align-self: flex-start;
+            background: var(--ai-bubble);
+            border-bottom-left-radius: 3px;
+            border-right: 3px solid var(--secondary-color);
+        }
+        
+        .chat-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 12px;
+            height: 12px;
+            background: inherit;
+        }
+        
+        .chat-user::before {
+            right: -6px;
+            border-radius: 0 0 0 12px;
+            box-shadow: -6px 6px 0 0 var(--user-bubble);
+        }
+        
+        .chat-ai::before {
+            left: -6px;
+            border-radius: 0 0 12px 0;
+            box-shadow: 6px 6px 0 0 var(--ai-bubble);
+        }
+        
+        .chat-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .chat-user .chat-header {
+            color: var(--primary-color);
+            text-align: right;
+        }
+        
+        .chat-ai .chat-header {
+            color: var(--secondary-color);
+        }
+        
+        .chat-rating {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: right;
+            opacity: 0.8;
+        }
+        
+        .input-container {
+            position: relative;
+            margin-top: auto;
+        }
+        
+        .input-container textarea {
+            padding-right: 60px;
+            min-height: 80px;
+            max-height: 150px;
+        }
+        
+        .send-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            background: var(--secondary-color);
+        }
+        
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #000;
+        }
+        
+        .status-display {
+            background: rgba(5, 5, 5, 0.9);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-left: 3px solid var(--primary-color);
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+            min-height: 60px;
+        }
+        
+        /* Subtle background element */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 240, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 42, 109, 0.03) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        /* API Key Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(10, 10, 10, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            position: relative;
+        }
+        
+        .modal-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .modal-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        /* Initial Setup and Debating Phase */
+        .init-phase {
+            display: block;
+        }
+        
+        .debate-phase {
+            display: none;
+        }
+        
+        .debate-active .init-phase {
+            display: none;
+        }
+        
+        .debate-active .debate-phase {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        /* Replace the existing media query */
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr; /* Already present, stacks columns */
+        padding: 0 1rem; /* Reduce padding for smaller screens */
+        gap: 2rem; /* Reduce gap between sections */
     }
 
-    html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+    h1 {
+        font-size: 2rem; /* Slightly smaller than 2.5rem for mobile */
+    }
+
+    .subtitle {
+        font-size: 1rem; /* Reduce subtitle size */
+    }
+
+    .board-container {
+        padding: 1rem; /* Reduce padding */
+    }
+
+    #board {
+        max-width: 100%; /* Ensure chessboard fits container */
+        width: 100%; /* Full width on mobile */
+    }
+
+    .interaction-panel {
+        padding: 1rem; /* Reduce padding */
+        max-height: none; /* Remove fixed height for flexibility */
+        height: auto; /* Let it grow naturally */
+    }
+
+    .chat-container {
+        max-height: 50vh; /* Limit chat height to half the viewport */
+    }
+
+    input, textarea {
+        font-size: 0.9rem; /* Slightly smaller text for mobile */
+        padding: 0.8rem; /* Reduce padding */
+    }
+
+    button {
+        padding: 0.8rem; /* Reduce button size */
+        font-size: 0.9rem;
+    }
+
+    .send-btn {
+        width: 35px; /* Slightly smaller send button */
+        height: 35px;
+    }
 }
 
-#board {
-  height: 100%;
-  width: 100%;
-  
-}
+/* Add this new media query for very small screens (e.g., phones below 600px) */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5rem; /* Even smaller for tiny screens */
+    }
 
-@media (max-width: 768px) {
-  html, body {
-    height: auto;
-    overflow: auto;
-  }
-}
-#board {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  touch-action: none;
-}
+    .subtitle {
+        font-size: 0.9rem;
+    }
 
+    .score-display {
+        flex-direction: column; /* Stack scores vertically */
+        gap: 0.5rem;
+    }
 
-  </style>
+    .score-user, .score-ai {
+        width: 100%; /* Full width for scores */
+        padding: 0.5rem;
+    }
+
+    .chat-bubble {
+        max-width: 95%; /* Slightly wider bubbles on small screens */
+        padding: 0.8rem;
+    }
+}
+    </style>
 </head>
 <body>
-	<center>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <a class="navbar-brand" href="https://github.com/SanshruthR">Chess Unblocked</a>
-      </div>
+    <!-- Background elements -->
+    <div class="bg-animation"></div>
+    <div class="stars" id="stars"></div>
+    <div class="circuit-lines"></div>
+    
+    <!-- API Key Modal -->
+    <div class="modal" id="apiKeyModal">
+        <div class="modal-content">
+            <h2>API Key Required</h2>
+            <p>Please enter your Groq API key to use this application. You can get one at <a href="https://console.groq.com/keys" target="_blank" style="color: var(--primary-color);">Groq Console</a>.</p>
+            <div class="panel-section">
+                <label for="apiKey">Groq API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter your Groq API key..." />
+            </div>
+            <div class="panel-section">
+                <button id="saveKeyBtn">Save Key</button>
+            </div>
+        </div>
     </div>
-  </nav>
+    
+    <div class="header">
+        <h1>DebateMate</h1>
+        <p class="subtitle">Strategic Debate Arena: Words fuel your chess moves.</p>
+        <p class="subtitle"><a href="https://github.com/SanshruthR/DebateMate">
+            <img src="https://img.shields.io/badge/GitHub-DebateMate-181717?style=for-the-badge&logo=github&logoColor=white">
+          </a>
+          </p>
+    </div>
+    
+    <div class="container">
+        <div class="board-container">
+            <div id="board"></div>
+            <div class="score-display">
+                <div class="score-user">
+                    <div class="score-label">Your Points</div>
+                    <div class="score-value" id="userScore">0</div>
+                </div>
+                <div class="score-ai">
+                    <div class="score-label">Challenger Points</div>
+                    <div class="score-value" id="aiScore">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="interaction-panel" id="interactionPanel">
+            <!-- Initial Setup Phase -->
+            <div class="init-phase">
+                <div class="panel-section init-section">
+                    <label for="plan">Define Your Strategic Objective</label>
+                    <input type="text" id="plan" placeholder="What's your plan or decision you want to debate..." />
+                </div>
+                
+                <div class="panel-section">
+                    <button id="startDebateBtn">Begin Strategic Debate</button>
+                </div>
+                
+                <div class="panel-section">
+                    <div id="status" class="status-display">System Ready: Define your objective to start debate</div>
+                </div>
+            </div>
+            
+            <!-- Debate Phase -->
+            <div class="debate-phase">
+                <div class="chat-container" id="chatContainer">
+                    <!-- Chat messages will appear here -->
+                </div>
+                
+                <div class="input-container">
+                    <textarea id="response" placeholder="Type your response to the challenge..."></textarea>
+                    <button class="send-btn" id="sendResponseBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
- 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script>
+        // Create star background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const count = 100;
+            
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random position
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Random size
+                const size = Math.random() * 2;
+                
+                // Random opacity
+                const opacity = Math.random() * 0.7 + 0.3;
+                
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.opacity = opacity;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // API Key handling
+        function checkApiKey() {
+            // If you want to hardcode your Groq API key, replace null with your key in quotes below
+            const defaultApiKey = null; 
+            
+            // Check for stored API key first
+            let apiKey = localStorage.getItem('groqApiKey');
+            
+            // If there's a default key and no stored key, save the default key
+            if (!apiKey && defaultApiKey) {
+                localStorage.setItem('groqApiKey', defaultApiKey);
+                apiKey = defaultApiKey;
+            }
+            
+            if (!apiKey) {
+                document.getElementById('apiKeyModal').classList.add('show');
+                return false;
+            }
+            return true;
+        }
+        
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('Please enter a valid API key');
+                return;
+            }
+            
+            localStorage.setItem('groqApiKey', apiKey);
+            document.getElementById('apiKeyModal').classList.remove('show');
+        }
+        
+        // Main application code
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create star background
+            createStars();
+            
+            // Check for API key
+            checkApiKey();
+            
+            // Initialize the chess game
+            const chess = new Chess();
+            
+            // Initialize the chessboard with a specific config
+            const config = {
+                position: 'start',
+                draggable: false,
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+            };
+            
+            const board = Chessboard('board', config);
+            
+            // Make sure the board is responsive
+            window.addEventListener('resize', () => {
+                board.resize();
+            });
+            
+            // Global variables
+            let debateActive = false;
+            let currentPlan = "";
+            let userScore = 0;
+            let aiScore = 0;
+            let debateRound = 0;
+            let lastRating = 0;
+            
+            // Rate limiting variables
+            let lastRequestTime = 0;
+            const requestDelay = 5000; // 5 second delay between requests
+            
+            // Update scores in the UI
+            function updateScores() {
+                document.getElementById('userScore').innerText = userScore;
+                document.getElementById('aiScore').innerText = aiScore;
+            }
+            
+            // Switch to debate mode
+            function startDebate() {
+                if (!checkApiKey()) return;
+                
+                currentPlan = document.getElementById('plan').value.trim();
+                if (!currentPlan) {
+                    alert("Please define your strategic objective first!");
+                    return;
+                }
+                
+                // Reset the game and scores
+                chess.reset();
+                board.position('start');
+                userScore = 0;
+                aiScore = 0;
+                debateRound = 0;
+                updateScores();
+                
+                // Clear chat
+                document.getElementById('chatContainer').innerHTML = '';
+                
+                // Switch to debate mode
+                document.getElementById('interactionPanel').classList.add('debate-active');
+                debateActive = true;
+                
+                // Generate first AI challenge
+                generateAIChallenge();
+            }
+            
+            // Generate an AI challenge based on the plan
+            async function generateAIChallenge() {
+                const now = Date.now();
+                if (now - lastRequestTime < requestDelay) {
+                    await new Promise(resolve => setTimeout(resolve, requestDelay - (now - lastRequestTime)));
+                }
+                lastRequestTime = Date.now();
 
-    <!-- Chess Board -->
-    <div id="board"></div>
-	<div class="container mt-5">
-		<center>
-      <p>A chess website that isn't blocked by fortinet.</p></center>
-      <button class="btn btn-teal" id="darkButton">Dark Mode</button>
-	
-
-
-      
-  </div></center>
-
-  <!-- Import jQuery and Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-  <!-- Import ChessboardJS -->
-  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
-        integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
-        crossorigin="anonymous"></script>
-
-  <!-- Dark Mode Toggle -->
-  <script type='text/javascript'>
-    function toggleDarkMode() {
-      var element = document.body;
-      element.classList.toggle("dark-mode");
-    }
-  </script>
-
-  <!-- Chess Board Script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.js"></script>
-
+                const apiKey = localStorage.getItem('groqApiKey');
+                if (!apiKey) {
+                    document.getElementById('apiKeyModal').classList.add('show');
+                    return;
+                }
+                
+                // Add typing indicator to show AI is thinking
+                addTypingIndicator();
+                
+                try {
+                    let prompt;
+                    if (debateRound === 0) {
+                        // First round - generate initial challenge
+                        prompt = `I'm planning to ${currentPlan}. 
+                                 As a strategic advisor, identify a potential critical challenge, risk, or obstacle
+                                 to my plan that I might not have considered. 
+                                 Be specific and realistic. Phrase it as a direct, conversational question 
+                                 starting with "What if..." Keep your response under 25 words.`;
+                    } else {
+                        // Subsequent rounds - respond to user's argument
+                        const chatMessages = document.querySelectorAll('.chat-bubble');
+                        const lastUserMessage = chatMessages[chatMessages.length - 1].querySelector('.chat-content').textContent;
+                        
+                        prompt = `I'm planning to ${currentPlan}. 
+                                 The user has responded to a previous challenge with this argument: "${lastUserMessage}"
+                                 
+                                 As a strategic advisor, counter this response with a follow-up challenge that
+                                 pushes their thinking further or identifies a weakness in their reasoning.
+                                 Be specific and ensure your response directly addresses their point.
+                                 Phrase it as a direct, conversational question or point. Keep your response under 25 words.`;
+                    }
+                    
+                    const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${apiKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama3-70b-8192",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are a strategic debate challenger that provides concise and thought-provoking questions."
+                                },
+                                {
+                                    role: "user",
+                                    content: prompt
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 150
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        console.error("API Error:", data.error);
+                        removeTypingIndicator();
+                        document.getElementById('apiKeyModal').classList.add('show');
+                        return;
+                    }
+                    
+                    // Extract the content from the response
+                    const aiMessage = data.choices[0].message.content.trim();
+                    
+                    // Remove typing indicator and add AI message
+                    removeTypingIndicator();
+                    addChatMessage('ai', aiMessage);
+                    
+                    // Make AI move on the board
+                    if (debateRound > 0) {
+                        makeAIMove();
+                    }
+                    
+                    debateRound++;
+                    
+                } catch (error) {
+                    console.error("API Request Error:", error);
+                    removeTypingIndicator();
+                    addChatMessage('ai', "I'm having trouble connecting. Please try again or check your API key.");
+                }
+            }
+            
+            // Handle user's response
+            async function handleUserResponse() {
+                const responseText = document.getElementById('response').value.trim();
+                if (!responseText) return;
+                
+                // Add user message to chat
+                addChatMessage('user', responseText);
+                
+                // Clear input field
+                document.getElementById('response').value = '';
+                
+                // Rate the user's response
+                const rating = await rateResponse(responseText);
+                
+                // Update the rating on the user's message
+                const chatMessages = document.querySelectorAll('.chat-bubble');
+                const lastMessage = chatMessages[chatMessages.length - 1];
+                lastMessage.innerHTML += `<div class="chat-rating">Response efficacy: ${rating}/10</div>`;
+                
+                // Update user score based on rating
+                lastRating = rating;
+                userScore += rating;
+                updateScores();
+                
+                // Make a move on the board based on user's rating
+                makeUserMove(rating);
+                
+                // Generate AI challenge
+                generateAIChallenge();
+            }
+            
+            // Add a chat message to the container
+            function addChatMessage(sender, message) {
+                const chatContainer = document.getElementById('chatContainer');
+                const messageEl = document.createElement('div');
+                messageEl.className = `chat-bubble chat-${sender}`;
+                
+                const senderName = sender === 'user' ? 'You' : 'Challenger';
+                
+                messageEl.innerHTML = `
+                    <div class="chat-header">${senderName}</div>
+                    <div class="chat-content">${message}</div>
+                `;
+                
+                chatContainer.appendChild(messageEl);
+                
+                // Scroll to the bottom
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Add typing indicator
+            function addTypingIndicator() {
+                const chatContainer = document.getElementById('chatContainer');
+                const indicator = document.createElement('div');
+                indicator.className = 'chat-bubble chat-ai typing-indicator';
+                indicator.id = 'typingIndicator';
+                
+                indicator.innerHTML = `
+                    <div class="chat-header">Challenger</div>
+                    <div class="chat-content"></div>
+                `;
+                
+                chatContainer.appendChild(indicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Remove typing indicator
+            function removeTypingIndicator() {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+            
+            // Rate the user's response
+            async function rateResponse(response) {
+                const apiKey = localStorage.getItem('groqApiKey');
+                if (!apiKey) {
+                    return 5; // Default rating if no API key
+                }
+                
+                const prompt = `
+                    Rate the following strategic response on a scale of 1-10 where 10 is excellent.
+                    
+                    Context: The person is planning to ${currentPlan}.
+                    Response: "${response}"
+                    
+                    Consider:
+                    - How thoughtful and strategic is this response?
+                    - Does it address potential risks or challenges?
+                    - Is it realistic and implementable?
+                    - Does it show foresight and critical thinking?
+                    
+                    Provide ONLY a numerical rating from 1-10. Just the number.
+                `;
+                
+                try {
+                    const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${apiKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama3-70b-8192",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are a strategic evaluator that rates responses on a scale of 1-10. Provide only the numerical rating."
+                                },
+                                {
+                                    role: "user",
+                                    content: prompt
+                                }
+                            ],
+                            temperature: 0.2,
+                            max_tokens: 10
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        console.error("API Error:", data.error);
+                        return 5; // Default value on error
+                    }
+                    
+                    // Extract the content from the response
+                    const content = data.choices[0].message.content.trim();
+                    
+                    // Extract just the number
+                    const ratingMatch = content.match(/\d+/);
+                    return ratingMatch ? Math.min(10, Math.max(1, parseInt(ratingMatch[0]))) : 5;
+                    
+                } catch (error) {
+                    console.error("API Request Error:", error);
+                    return 5; // Default value on error
+                }
+            }
+            
+            // Make a move on the board based on user's rating
+            function makeUserMove(rating) {
+                try {
+                    // Normalize rating to skill level (1-20 scale)
+                    const skillLevel = Math.floor((rating / 10) * 20);
+                    
+                    // Get possible moves
+                    const moves = chess.moves({ verbose: true });
+                    if (moves.length === 0) return;
+                    
+                    // Higher skill level = better move selection
+                    let moveIndex;
+                    if (skillLevel > 15) {
+                        // Select from top 25% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length / 4));
+                    } else if (skillLevel > 10) {
+                        // Select from top 50% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length / 2));
+                    } else if (skillLevel > 5) {
+                        // Select from top 75% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length * 0.75));
+                    } else {
+                        // Select from all moves
+                        moveIndex = Math.floor(Math.random() * moves.length);
+                    }
+                    
+                    const move = moves[moveIndex];
+                    chess.move({ from: move.from, to: move.to });
+                    board.position(chess.fen());
+                    
+                    // Check game state
+                    checkGameState('user');
+                } catch (error) {
+                    console.error("Error making user move:", error);
+                }
+            }
+            
+            // Make AI move on the board
+            function makeAIMove() {
+                try {
+                    // AI skill level is inverse of user's last rating
+                    const aiSkillLevel = 20 - Math.floor((lastRating / 10) * 20);
+                    
+                    // Update AI score
+                    const aiPoints = 10 - lastRating;
+                    aiScore += aiPoints;
+                    updateScores();
+                    
+                    // Get possible moves
+                    const moves = chess.moves({ verbose: true });
+                    if (moves.length === 0) return;
+                    
+                    // Higher skill level = better move selection
+                    let moveIndex;
+                    if (aiSkillLevel > 15) {
+                        // Select from top 25% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length / 4));
+                    } else if (aiSkillLevel > 10) {
+                        // Select from top 50% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length / 2));
+                    } else if (aiSkillLevel > 5) {
+                        // Select from top 75% of moves
+                        moveIndex = Math.floor(Math.random() * (moves.length * 0.75));
+                    } else {
+                        // Select from all moves
+                        moveIndex = Math.floor(Math.random() * moves.length);
+                    }
+                    
+                    const move = moves[moveIndex];
+                    chess.move({ from: move.from, to: move.to });
+                    board.position(chess.fen());
+                    
+                    // Check game state
+                    checkGameState('ai');
+                } catch (error) {
+                    console.error("Error making AI move:", error);
+                }
+            }
+            
+            // Check game state
+            function checkGameState(lastMover) {
+                if (chess.in_checkmate()) {
+                    const winner = lastMover === 'user' ? 'You win!' : 'Challenger wins!';
+                    addChatMessage('ai', `Game over. ${winner} Your strategic thinking has been thoroughly tested.`);
+                    endDebate();
+                    return true;
+                } else if (chess.in_draw()) {
+                    addChatMessage('ai', 'Game drawn. Both strategies have proven equally effective.');
+                    endDebate();
+                    return true;
+                } else if (chess.in_check()) {
+                    // Just for visual feedback, don't end the game
+                }
+                
+                // Also end if we've had a lot of rounds
+                if (debateRound >= 10) {
+                    const winner = userScore > aiScore ? 'You win!' : userScore < aiScore ? 'Challenger wins!' : 'It\'s a tie!';
+                    addChatMessage('ai', `Debate concluded after 10 rounds. ${winner} Final score: You ${userScore} - Challenger ${aiScore}`);
+                    endDebate();
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // End the debate
+            function endDebate() {
+                // Remove existing reset button if it exists
+                const existingBtn = document.querySelector('#chatContainer button');
+                if (existingBtn) existingBtn.remove();
+                
+                // Add reset button to chat
+                const chatContainer = document.getElementById('chatContainer');
+                const resetBtn = document.createElement('button');
+                resetBtn.innerText = 'Start New Debate';
+                resetBtn.style.marginTop = '1rem';
+                resetBtn.style.textAlign = 'center';
+                resetBtn.style.display = 'block';
+                resetBtn.style.margin = '1rem auto';
+                resetBtn.addEventListener('click', resetDebate);
+                chatContainer.appendChild(resetBtn);
+                
+                // Disable the response input
+                document.getElementById('response').disabled = true;
+                document.getElementById('sendResponseBtn').disabled = true;
+}
+            
+            // Reset the debate
+            function resetDebate() {
+                // Switch back to init mode
+                document.getElementById('interactionPanel').classList.remove('debate-active');
+                document.getElementById('plan').value = '';
+                document.getElementById('response').disabled = false;
+                document.getElementById('sendResponseBtn').disabled = false;
+                
+                // Reset the game
+                chess.reset();
+                board.position('start');
+                debateActive = false;
+                currentPlan = "";
+            }
+            
+            // Add event listeners
+            document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
+            document.getElementById('startDebateBtn').addEventListener('click', startDebate);
+            document.getElementById('sendResponseBtn').addEventListener('click', handleUserResponse);
+            
+            // Handle Enter key in text areas
+            document.getElementById('response').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    handleUserResponse();
+                }
+            });
+            
+            document.getElementById('apiKey').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    saveApiKey();
+                }
+            });
+            
+            document.getElementById('plan').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    startDebate();
+                }
+            });
+        });
+    </script>
 </body>
-<script src="./script.js"></script>
-	
-
 </html>
